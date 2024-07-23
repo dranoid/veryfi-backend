@@ -5,6 +5,7 @@ import { lastValueFrom } from 'rxjs';
 import * as qs from 'qs';
 import { SelfVerificationDTO, verificationDTO } from './dto/verification.dto';
 import { UserService } from 'src/user/user.service';
+import { VerificationGateway } from 'src/websockets/verification.gateway';
 
 @Injectable()
 export class VerificationService {
@@ -15,6 +16,7 @@ export class VerificationService {
     private readonly configService: ConfigService,
     private httpService: HttpService,
     private readonly userService: UserService,
+    private readonly verificationGateway: VerificationGateway,
   ) {
     this.clientId = this.configService.get('CLIENT_ID');
     this.clientSecret = this.configService.get('CLIENT_SECRET');
@@ -63,9 +65,10 @@ export class VerificationService {
         countryCode: verificationDto.countryCode,
         phoneNumber: verificationDto.phoneNumber,
         type: verificationDto.type,
-        // webhookUrl: verificationDto.webhookUrl,
+        webhookUrl: this.configService.get('WEBHOOK_URL'),
         // reference: verificationDto.reference,
       });
+      // console.log(data, 'we are here');
 
       // Make the OTP request
       const response = await lastValueFrom(
@@ -123,8 +126,19 @@ export class VerificationService {
   }
 
   async processWebhook(webhookData: any) {
-    // Process the webhook data
     console.log('Received webhook:', webhookData);
+
+    this.verificationGateway.sendVerificationSuccess(webhookData);
+
+    if (webhookData.data.phoneNumber) {
+      // console.log('yayyyyy');
+      this.userService.findAndVerifyUserByPhoneNumber(
+        webhookData.data.phoneNumber,
+      );
+    }
+
+    return { message: 'Webhook processed successfully' };
+
     // looks like this
     // "status": true,
     //     "message": "otp fetched successfully",
@@ -143,11 +157,6 @@ export class VerificationService {
     //         "webhookUrl": null
     //     }
     // }
-
-    // Here you would typically update the verification status in your database
-    // based on the webhook data
-
-    return { message: 'Webhook processed successfully' };
   }
 
   async updateAndVerifyUserPhone(
@@ -158,7 +167,6 @@ export class VerificationService {
     // Update user's phone number
     await this.userService.updateUserPhone(userId, phoneNumber);
 
-    // Start verification process
     const verificationDto: verificationDTO = {
       countryCode: '+234',
       phoneNumber: phoneNumber,
@@ -170,7 +178,7 @@ export class VerificationService {
 
     return {
       message: 'Phone number updated and verification initiated',
-      verificationResult,
+      ...verificationResult,
     };
   }
 }

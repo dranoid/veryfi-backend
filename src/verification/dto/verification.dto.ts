@@ -1,5 +1,10 @@
 import { IsEnum, IsOptional, IsString } from 'class-validator';
 
+enum verification_type {
+  DROPPED_CALL = 'DROPPED_CALL',
+  SEND_SMS = 'SEND_SMS',
+}
+
 export class verificationDTO {
   @IsString()
   countryCode: string;
@@ -7,8 +12,8 @@ export class verificationDTO {
   @IsString()
   phoneNumber: string;
 
-  @IsString()
-  type: string;
+  @IsEnum(verification_type)
+  type: verification_type;
 
   @IsString()
   @IsOptional()
@@ -17,11 +22,6 @@ export class verificationDTO {
   @IsString()
   @IsOptional()
   reference?: string;
-}
-
-enum verification_type {
-  DROPPED_CALL = 'DROPPED_CALL',
-  SEND_SMS = 'SEND_SMS',
 }
 
 export class SelfVerificationDTO {
