@@ -8,7 +8,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { VerificationService } from './verification.service';
-import { verificationDTO } from './dto/verification.dto';
+import { SelfVerificationDTO, verificationDTO } from './dto/verification.dto';
 import { JwtAuthGuard } from 'src/auth/auth.guard';
 
 @Controller('verification')
@@ -48,11 +48,14 @@ export class VerificationController {
 
   @UseGuards(JwtAuthGuard)
   @Post('me')
-  async updateUserPhone(@Req() req, @Body('number') number: string) {
-    const userId = req.user.id; // Assuming the user ID is attached to the request by the JwtAuthGuard
+  async updateUserPhone(
+    @Req() req,
+    @Body() selfVerificationDto: SelfVerificationDTO,
+  ) {
+    const userId = req.user.id;
     return await this.verificationService.updateAndVerifyUserPhone(
+      selfVerificationDto,
       userId,
-      number,
     );
   }
 }

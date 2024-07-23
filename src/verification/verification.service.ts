@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { HttpService } from '@nestjs/axios';
 import { lastValueFrom } from 'rxjs';
 import * as qs from 'qs';
-import { verificationDTO } from './dto/verification.dto';
+import { SelfVerificationDTO, verificationDTO } from './dto/verification.dto';
 import { UserService } from 'src/user/user.service';
 
 @Injectable()
@@ -150,15 +150,20 @@ export class VerificationService {
     return { message: 'Webhook processed successfully' };
   }
 
-  async updateAndVerifyUserPhone(userId: string, phoneNumber: string) {
+  async updateAndVerifyUserPhone(
+    selfVerificationDto: SelfVerificationDTO,
+    userId: string,
+  ) {
+    const phoneNumber = selfVerificationDto.number;
     // Update user's phone number
     await this.userService.updateUserPhone(userId, phoneNumber);
 
     // Start verification process
     const verificationDto: verificationDTO = {
-      countryCode: '+234', // You might want to make this dynamic or get it from the user
+      countryCode: '+234',
       phoneNumber: phoneNumber,
-      type: 'DROPPED_CALL', // or whatever type you're using
+      type: selfVerificationDto.type,
+      webhookUrl: this.configService.get('WEBHOOK_URL'),
     };
 
     const verificationResult = await this.verifyNumber(verificationDto);
