@@ -4,12 +4,12 @@ import {
   Get,
   Param,
   Post,
-  Req,
-  UseGuards,
+  // Req,
+  // UseGuards,
 } from '@nestjs/common';
 import { VerificationService } from './verification.service';
 import { SelfVerificationDTO, verificationDTO } from './dto/verification.dto';
-import { JwtAuthGuard } from 'src/auth/auth.guard';
+// import { JwtAuthGuard } from 'src/auth/auth.guard';
 
 @Controller('verification')
 export class VerificationController {
@@ -29,13 +29,13 @@ export class VerificationController {
   //     }
   //   }
 
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(JwtAuthGuard)
   @Post()
   async verifyNumber(@Body() verificationDto: verificationDTO) {
     return await this.verificationService.verifyNumber(verificationDto);
   }
 
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(JwtAuthGuard)
   @Get('status/:id')
   async getVerificationStatus(@Param('id') id: string) {
     return await this.verificationService.checkVerificationStatus(id);
@@ -46,16 +46,16 @@ export class VerificationController {
     return await this.verificationService.processWebhook(webhookData);
   }
 
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(JwtAuthGuard)
   @Post('me')
   async updateUserPhone(
-    @Req() req,
+    // @Req() req,
     @Body() selfVerificationDto: SelfVerificationDTO,
   ) {
-    const userId = req.user.id;
+    // const userId = req.user.id;
     return await this.verificationService.updateAndVerifyUserPhone(
       selfVerificationDto,
-      userId,
+      // userId,
     );
   }
 }

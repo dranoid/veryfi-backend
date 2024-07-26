@@ -161,11 +161,11 @@ export class VerificationService {
 
   async updateAndVerifyUserPhone(
     selfVerificationDto: SelfVerificationDTO,
-    userId: string,
+    // userId: string,
   ) {
     const phoneNumber = selfVerificationDto.number;
     // Update user's phone number
-    await this.userService.updateUserPhone(userId, phoneNumber);
+    // await this.userService.updateUserPhone(userId, phoneNumber);
 
     const verificationDto: verificationDTO = {
       countryCode: '+234',
